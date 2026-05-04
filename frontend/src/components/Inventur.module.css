@@ -1,0 +1,191 @@
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  background: none;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.backButton:hover {
+  color: var(--text);
+}
+
+.productHeader {
+  margin-bottom: 2rem;
+}
+
+.productSubtitle {
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.chargeList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 2rem;
+}
+
+.chargeCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.chargeDate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+}
+
+.chargeCount {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.chargeActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.roundButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.roundButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.decrementButton {
+  background: var(--danger);
+}
+
+.incrementButton {
+  background: var(--success);
+}
+
+.addBatchButton {
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px dashed var(--border) !important;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+.addBatchButton:hover {
+  border-color: var(--primary) !important;
+  color: var(--text);
+}
+
+.batchForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.batchFormTitle {
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+.fieldLabel {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.yearGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.selectorButton {
+  padding: 8px;
+  font-size: 0.875rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.selectorButton:hover {
+  background: var(--border);
+}
+
+.selectorButtonActive {
+  background: var(--primary);
+  color: white;
+}
+
+.selectorButtonActive:hover {
+  background: var(--primary-hover);
+}
+
+.countRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.countDisplay {
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex: 1;
+  text-align: center;
+}
+
+.countButton {
+  padding: 12px;
+  background: var(--bg);
+}
+
+.formActions {
+  display: flex;
+  gap: 8px;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg);
+}
+
+.saveButton {
+  flex: 2;
+  padding: 12px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.saveButton:hover {
+  background: var(--primary-hover);
+}

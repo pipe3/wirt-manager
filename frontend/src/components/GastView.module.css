@@ -1,0 +1,73 @@
+.header {
+  margin-bottom: 2rem;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.productCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.productInfo {
+  flex: 1;
+}
+
+.productName {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.productCategory {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+}
+
+.stockInfo {
+  text-align: right;
+  min-width: 80px;
+}
+
+.stockNumber {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.stockLabel {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.requestButton {
+  padding: 8px 12px;
+  background: var(--warning);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.requestButton:disabled {
+  background: var(--card-bg);
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.875rem;
+}

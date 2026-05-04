@@ -1,0 +1,30 @@
+.wrapper {
+  margin-top: 20vh;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
+.submitButton {
+  background: var(--primary);
+  color: white;
+  padding: 12px;
+  width: 100%;
+}
+
+.submitButton:hover {
+  background: var(--primary-hover);
+}

@@ -1,0 +1,66 @@
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  background: none;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.backButton:hover {
+  color: var(--text);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.statusMessage {
+  font-size: 0.875rem;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+}
+
+.statusSuccess {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.statusError {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.submitButton {
+  background: var(--primary);
+  color: white;
+  padding: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.submitButton:hover {
+  background: var(--primary-hover);
+}

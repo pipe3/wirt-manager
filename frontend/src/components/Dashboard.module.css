@@ -1,0 +1,121 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+
+.iconButton {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 8px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.iconButton:hover {
+  border-color: var(--primary);
+}
+
+.primaryButton {
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primaryButton:hover {
+  background: var(--primary-hover);
+}
+
+.alert {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--warning);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alertBody {
+  flex: 1;
+}
+
+.alertTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.alertItems {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.productCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.productCard:hover {
+  border-color: var(--primary);
+}
+
+.statusBar {
+  width: 12px;
+  height: 40px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.productInfo {
+  flex: 1;
+}
+
+.productName {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.productCategory {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+}
+
+.stockInfo {
+  text-align: right;
+}
+
+.stockCount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.stockNumber {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.stockLabel {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
