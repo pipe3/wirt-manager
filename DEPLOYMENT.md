@@ -1,121 +1,58 @@
-# Deployment auf Shared Hosting (PHP)
+# Deployment
 
-## Voraussetzungen
-
-- Webhosting-Paket mit PHP ≥ 8.1 und SQLite3
-- FTP-Zugangsdaten (aus dem Kundencenter)
-- `mod_rewrite` aktiviert (s. Schritt 1)
+Das Deployment läuft vollautomatisch per GitHub Actions bei jedem Push auf `main`.  
+Alle sensiblen Werte werden ausschließlich über GitHub Secrets konfiguriert — keine Zugangsdaten im Repo.
 
 ---
 
-## Schritt 1 — mod_rewrite im Kundencenter aktivieren
+## GitHub Secrets konfigurieren
 
-1. Im Kundencenter des Hosting-Providers einloggen
-2. **Meine Tarife → Tarifname → Experten-Einstellungen → Servereinstellungen**
-3. `mod_rewrite` auf **On** setzen und speichern
-4. Kurz deaktivieren, erneut speichern, dann wieder aktivieren und speichern
-5. **~8 Minuten warten**, bis die Einstellung aktiv ist
+Unter **GitHub → Repository → Settings → Secrets and variables → Actions** folgende Secrets anlegen:
 
----
-
-## Schritt 2 — Frontend bauen
-
-```bash
-cd frontend
-npm run build
-```
-
-Ergebnis: `frontend/dist/` mit allen statischen Dateien.
+| Secret | Beschreibung | Beispiel |
+|--------|-------------|---------|
+| `SSH_HOST` | Hostname des Servers | `ssh.example.com` |
+| `SSH_USER` | SSH-Benutzername | `myuser` |
+| `SSH_PORT` | SSH-Port | `22` |
+| `SSH_PRIVATE_KEY` | Privater SSH-Key (ganzer Inhalt der Keyfile) | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| `DEPLOY_PATH` | Absoluter Zielpfad auf dem Server | `/html` |
+| `ALLOWED_ORIGIN` | Domain der App (für CORS) | `https://example.com` |
 
 ---
 
-## Schritt 3 — CORS in der API anpassen
+## Was die Pipeline macht
 
-In [api/index.php](api/index.php) Zeile 6 die Domain eintragen:
+Bei jedem Push auf `main`:
 
-```php
-$allowedOrigin = getenv('ALLOWED_ORIGIN') ?: 'https://deine-domain.de';
-```
-
-Da Frontend und API auf derselben Domain laufen, kann der Wert auf die eigene Domain gesetzt werden.
-
----
-
-## Schritt 4 — `.htaccess` erstellen
-
-Neue Datei `.htaccess` im Projektroot erstellen (landet später in `html/`):
-
-```apache
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(?!api/).*$ /index.html [L]
-</IfModule>
-```
-
-Diese Regel leitet alle Nicht-API-Requests an `index.html` weiter (React Router), lässt `/api/...` aber durch.
+1. Frontend bauen (`npm ci && npm run build`)
+2. `frontend/dist/` → Webroot auf dem Server (`--delete`, ohne `api/`)
+3. `deployment/.htaccess` → Webroot (React Router Routing)
+4. `api/` → `DEPLOY_PATH/api/` (`--delete`, ohne `data/` — Datenbank bleibt unangetastet)
+5. `api/.htaccess` mit `SetEnv ALLOWED_ORIGIN ...` aus dem Secret generieren und deployen
 
 ---
 
-## Schritt 5 — Dateien per FTP hochladen
+## Voraussetzungen am Server
 
-Der Webroot beim Hosting-Provider ist das Verzeichnis `html/`.
-
-Folgende Struktur auf dem Server anlegen:
-
-```
-html/
-├── .htaccess                ← neu erstellt (Schritt 4)
-├── index.html               ← aus frontend/dist/
-├── assets/                  ← aus frontend/dist/assets/
-├── sw.js                    ← aus frontend/dist/
-├── manifest.webmanifest     ← aus frontend/dist/
-└── api/
-    ├── index.php            ← api/index.php
-    ├── data/                ← leer, muss schreibbar sein
-    └── src/
-        ├── init_db.php
-        └── setup_admin.php
-```
-
-**FTP-Upload:**
-1. Inhalt von `frontend/dist/` → `html/`
-2. `.htaccess` → `html/`
-3. `api/index.php` → `html/api/index.php`
-4. `api/src/` → `html/api/src/`
-5. Ordner `html/api/data/` anlegen (leer lassen)
+- PHP ≥ 8.1 mit SQLite3-Extension
+- `mod_rewrite` aktiviert (Kundencenter → Experten-Einstellungen → Servereinstellungen)
+- SSH-Zugang eingerichtet, Public Key des Deploy-Keys hinterlegt
+- Ordner `DEPLOY_PATH/api/data/` muss existieren und schreibbar sein (`chmod 755`)
 
 ---
 
-## Schritt 6 — Datei- und Ordnerrechte setzen
+## Ersteinrichtung (einmalig nach erstem Deployment)
 
-Im FTP-Client oder Dateimanager des Hosters:
-
-| Pfad | Rechte |
-|------|--------|
-| `html/api/data/` | `755` |
-| `html/api/data/database.sqlite` (nach Init) | `644` |
-| `html/.htaccess` | `644` |
-
----
-
-## Schritt 7 — Datenbank initialisieren
-
-Einmalig im Browser aufrufen:
+Nach dem allerersten Deployment die Datenbank initialisieren:
 
 ```
 https://deine-domain.de/api/src/init_db.php
 https://deine-domain.de/api/src/setup_admin.php
 ```
 
-`setup_admin.php` setzt das Standard-Passwort `admin123`.
+`setup_admin.php` setzt das Standard-Passwort `admin123` — danach sofort unter **Einstellungen** ändern.
 
-**Danach sofort das Passwort unter Einstellungen ändern!**
-
-Anschließend beide Dateien per FTP löschen oder mit `.htaccess` sperren:
+Anschließend beide Dateien löschen oder in `deployment/.htaccess` sperren:
 
 ```apache
 <Files "setup_admin.php">
@@ -126,27 +63,13 @@ Anschließend beide Dateien per FTP löschen oder mit `.htaccess` sperren:
 
 ---
 
-## Schritt 8 — App aufrufen und testen
-
-```
-https://deine-domain.de          → Login
-https://deine-domain.de?gast     → Gast-Ansicht (kein Login)
-```
-
----
-
 ## Troubleshooting
 
 | Problem | Lösung |
 |--------|--------|
-| Weiße Seite / 404 nach Reload | mod_rewrite nicht aktiv oder `.htaccess` fehlt |
-| API antwortet nicht | Prüfen ob `html/api/index.php` vorhanden und PHP aktiv |
-| SQLite-Fehler | `html/api/data/` Rechte auf `755` setzen |
-| Login schlägt fehl | `setup_admin.php` nochmals aufrufen |
-| PWA wird nicht installiert | HTTPS muss aktiv sein (SSL im Kundencenter aktivieren) |
-
----
-
-## SSL / HTTPS aktivieren
-
-Im Kundencenter des Hosters unter **Domains → SSL-Zertifikat** ein kostenloses Let's-Encrypt-Zertifikat aktivieren. Die PWA-Funktionalität (installierbare App, Service Worker) erfordert zwingend HTTPS.
+| Weiße Seite / 404 nach Reload | `mod_rewrite` nicht aktiv oder `.htaccess` fehlt |
+| API antwortet nicht | PHP aktiv? `DEPLOY_PATH/api/index.php` vorhanden? |
+| SQLite-Fehler | `api/data/` Rechte auf `755` setzen |
+| CORS-Fehler | Secret `ALLOWED_ORIGIN` prüfen, Pipeline neu starten |
+| PWA nicht installierbar | HTTPS muss aktiv sein (SSL im Kundencenter aktivieren) |
+| Pipeline schlägt fehl | GitHub Actions Logs prüfen, Secrets vollständig? |

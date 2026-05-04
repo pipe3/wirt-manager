@@ -1,0 +1,65 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend bauen
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: SSH-Key einrichten
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: api/.htaccess aus Secret generieren
+        run: |
+          echo "SetEnv ALLOWED_ORIGIN ${{ secrets.ALLOWED_ORIGIN }}" > /tmp/api-htaccess
+
+      - name: Frontend deployen
+        run: |
+          rsync -az --delete \
+            --exclude='api/' \
+            frontend/dist/ \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+
+      - name: Webroot .htaccess deployen
+        run: |
+          rsync -az \
+            deployment/.htaccess \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/.htaccess
+
+      - name: API deployen
+        run: |
+          rsync -az --delete \
+            --exclude='data/' \
+            api/ \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/api/
+
+      - name: api/.htaccess deployen
+        run: |
+          rsync -az \
+            /tmp/api-htaccess \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/api/.htaccess
