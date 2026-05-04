@@ -80,7 +80,7 @@ export default function Inventur() {
 
       <div className={styles.productHeader}>
         <h1>{produkt.name}</h1>
-        <p className={styles.productSubtitle}>{produkt.kategorie} · Inventur</p>
+        <p className={styles.productSubtitle}>Inventur</p>
       </div>
 
       <div className={styles.chargeList}>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertTriangle, ChevronRight, PlusCircle, Settings, Bell, Package } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Settings, Bell, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Produkt, Charge, NachschubAnfrage } from '../types';
 import { api } from '../api/client';
@@ -75,16 +75,10 @@ export default function Dashboard() {
         <div className={styles.headerActions}>
           <button
             className={styles.iconButton}
-            onClick={() => navigate('/stammdaten')}
+            onClick={() => navigate('/einstellungen')}
             title="Einstellungen"
           >
             <Settings size={20} />
-          </button>
-          <button
-            className={styles.primaryButton}
-            onClick={() => navigate('/stammdaten')}
-          >
-            <PlusCircle size={20} /> Getränk
           </button>
         </div>
       </header>
@@ -119,7 +113,6 @@ export default function Dashboard() {
               />
               <div className={styles.productInfo}>
                 <h3 className={styles.productName}>{p.name}</h3>
-                <p className={styles.productCategory}>{p.kategorie}</p>
               </div>
               <div className={styles.stockInfo}>
                 <div className={styles.stockCount}>

@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import AdminLogin from './components/AdminLogin';
 import Dashboard from './components/Dashboard';
 import Inventur from './components/Inventur';
-import Stammdaten from './components/Stammdaten';
+import Einstellungen from './components/Einstellungen';
+import Logbuch from './components/Logbuch';
 import GastView from './components/GastView';
 import { syncQueue } from './utils/sync';
 import { api, getToken, clearToken } from './api/client';
@@ -61,8 +62,11 @@ function App() {
           <Route path="/inventur/:id" element={
             authState === 'admin' ? <Inventur /> : <Navigate to="/login" replace />
           } />
-          <Route path="/stammdaten" element={
-            authState === 'admin' ? <Stammdaten /> : <Navigate to="/login" replace />
+          <Route path="/einstellungen" element={
+            authState === 'admin' ? <Einstellungen /> : <Navigate to="/login" replace />
+          } />
+          <Route path="/logbuch" element={
+            authState === 'admin' ? <Logbuch /> : <Navigate to="/login" replace />
           } />
         </Routes>
       </div>

@@ -7,7 +7,6 @@ $tables = [
     "CREATE TABLE IF NOT EXISTS produkte (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        kategorie TEXT,
         meldebestand_kaesten INTEGER DEFAULT 5
     )",
     "CREATE TABLE IF NOT EXISTS chargen (

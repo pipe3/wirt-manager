@@ -6,7 +6,7 @@ Getränkeinventur-App für Bars und Gastronomiebetriebe. Verwaltet Produkte, Cha
 
 - **Admin-Dashboard** – Produktübersicht mit Bestandsampel (grün/gelb/rot nach MHD & Meldebestand)
 - **Inventur** – Chargenbasierte Zu-/Abgänge mit Grundangabe
-- **Stammdaten** – Produkte anlegen (Name, Kategorie, Meldebestand)
+- **Einstellungen** – Produkte anlegen/löschen, Meldebestand anpassen, Admin-Passwort ändern
 - **Gast-Ansicht** – Read-only-Sicht ohne Login (`?gast` URL-Parameter)
 - **Nachschub-Anfragen** – Automatische Anfragen bei Unterschreitung des Meldebestands
 - **Offline-first** – Inventurbuchungen werden bei fehlendem Netz in der Queue gepuffert und automatisch synchronisiert
@@ -61,6 +61,8 @@ Standard-Zugangsdaten nach `setup_admin.php`:
 |-------|----------|
 | Admin | `admin123` |
 
+Passwort kann nach dem Login unter **Einstellungen** geändert werden.
+
 Gast-Ansicht: `http://localhost:5173?gast` (kein Login erforderlich)
 
 ## Projektstruktur
@@ -69,9 +71,9 @@ Gast-Ansicht: `http://localhost:5173?gast` (kein Login erforderlich)
 wirt-manager/
 ├── frontend/               # React + Vite App
 │   ├── src/
-│   │   ├── components/     # Dashboard, Inventur, Stammdaten, GastView, AdminLogin
-│   │   ├── utils/sync.js   # Offline-Queue-Logik
-│   │   └── App.jsx         # Router & Auth-Gate
+│   │   ├── components/     # Dashboard, Inventur, Einstellungen, GastView, AdminLogin
+│   │   ├── utils/sync.ts   # Offline-Queue-Logik
+│   │   └── App.tsx         # Router & Auth-Gate
 │   └── public/             # PWA-Icons, manifest.json
 └── api/                    # PHP-Backend
     ├── index.php            # API-Router (Auth, Produkte, Chargen, Inventur, Nachschub)
@@ -84,7 +86,7 @@ wirt-manager/
 
 ## Datenmodell
 
-- **produkte** – Produkt mit Name, Kategorie, Meldebestand
+- **produkte** – Produkt mit Name und Meldebestand
 - **chargen** – Liefercharge je Produkt mit MHD (Monat/Jahr) und Kastenanzahl
 - **logbuch** – Inventurprotokoll aller Bestandsänderungen
 - **nachschub_anfragen** – Offene Nachschub-Anfragen

@@ -1,0 +1,80 @@
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  background: none;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.backButton:hover {
+  color: var(--text);
+}
+
+.empty {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  padding: 8px 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.datum {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.produkt {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.differenz {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.positiv {
+  color: var(--success);
+}
+
+.negativ {
+  color: var(--danger);
+}
+
+.grund {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}

@@ -30,17 +30,24 @@ $resource   = $pathParts[count($pathParts) - 1] ?? '';
 $parent     = $pathParts[count($pathParts) - 2] ?? '';
 
 // Auth-Endpoints brauchen keinen Token
-if ($resource === 'auth' || ($parent === 'auth' && $resource === 'verify')) {
-    if ($resource === 'verify') {
-        handleAuthVerify();
-    } else {
-        handleAuth($method);
-    }
+if ($resource === 'auth') {
+    handleAuth($method);
+    exit;
+}
+if ($parent === 'auth') {
+    if ($resource === 'verify') handleAuthVerify();
+    elseif ($resource === 'password') handlePasswordChange($method);
     exit;
 }
 
 // Alle anderen Endpoints: Token prüfen
 requireAuth();
+
+// Ressource mit ID (z.B. /api/produkte/5)
+if (is_numeric($resource) && $parent === 'produkte') {
+    handleProduktById($method, (int)$resource);
+    exit;
+}
 
 switch ($resource) {
     case 'produkte':
@@ -54,6 +61,9 @@ switch ($resource) {
         break;
     case 'nachschub':
         handleNachschub($method);
+        break;
+    case 'logbuch':
+        handleLogbuch($method);
         break;
     default:
         http_response_code(404);
@@ -112,12 +122,11 @@ function handleProdukte(string $method): void
 {
     global $pdo;
     if ($method === 'GET') {
-        $stmt = $pdo->query('SELECT * FROM produkte ORDER BY name');
+        $stmt = $pdo->query('SELECT id, name, meldebestand_kaesten FROM produkte ORDER BY name');
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     } elseif ($method === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
         $name = trim($data['name'] ?? '');
-        $kategorie = trim($data['kategorie'] ?? '');
         $meldebestand = max(0, (int)($data['meldebestand_kaesten'] ?? 5));
 
         if ($name === '') {
@@ -125,12 +134,70 @@ function handleProdukte(string $method): void
             echo json_encode(['error' => 'Name erforderlich']);
             return;
         }
-        $stmt = $pdo->prepare(
-            'INSERT INTO produkte (name, kategorie, meldebestand_kaesten) VALUES (?, ?, ?)'
-        );
-        $stmt->execute([$name, $kategorie, $meldebestand]);
+        $stmt = $pdo->prepare('INSERT INTO produkte (name, meldebestand_kaesten) VALUES (?, ?)');
+        $stmt->execute([$name, $meldebestand]);
         echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId()]);
     }
+}
+
+function handleProduktById(string $method, int $id): void
+{
+    global $pdo;
+    if ($method === 'DELETE') {
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare('DELETE FROM nachschub_anfragen WHERE produkt_id = ?')->execute([$id]);
+            $pdo->prepare('DELETE FROM logbuch WHERE produkt_id = ?')->execute([$id]);
+            $pdo->prepare('DELETE FROM produkte WHERE id = ?')->execute([$id]);
+            $pdo->commit();
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            http_response_code(500);
+            echo json_encode(['error' => 'Datenbankfehler']);
+        }
+    } elseif ($method === 'PUT') {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $meldebestand = max(0, (int)($data['meldebestand_kaesten'] ?? 0));
+        $pdo->prepare('UPDATE produkte SET meldebestand_kaesten = ? WHERE id = ?')->execute([$meldebestand, $id]);
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method not allowed']);
+    }
+}
+
+function handlePasswordChange(string $method): void
+{
+    global $pdo;
+    if ($method !== 'PUT') {
+        http_response_code(405);
+        return;
+    }
+    requireAuth();
+    $data = json_decode(file_get_contents('php://input'), true);
+    $oldPassword = $data['old_password'] ?? '';
+    $newPassword = $data['new_password'] ?? '';
+
+    if (empty($newPassword)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Neues Passwort erforderlich']);
+        return;
+    }
+
+    $stmt = $pdo->prepare("SELECT value FROM einstellungen WHERE key = 'admin_password'");
+    $stmt->execute();
+    $row = $stmt->fetch();
+
+    if (!$row || !password_verify($oldPassword, $row['value'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Aktuelles Passwort falsch']);
+        return;
+    }
+
+    $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+    $pdo->prepare("UPDATE einstellungen SET value = ? WHERE key = 'admin_password'")->execute([$hash]);
+    echo json_encode(['success' => true]);
 }
 
 function handleChargen(string $method): void
@@ -226,6 +293,20 @@ function handleInventur(string $method): void
         http_response_code(500);
         echo json_encode(['error' => 'Datenbankfehler']);
     }
+}
+
+function handleLogbuch(string $method): void
+{
+    global $pdo;
+    if ($method !== 'GET') { http_response_code(405); return; }
+    $stmt = $pdo->query(
+        "SELECT l.id, l.zeitstempel, l.differenz, l.grund, l.benutzerrolle, p.name AS produkt_name
+         FROM logbuch l
+         LEFT JOIN produkte p ON l.produkt_id = p.id
+         ORDER BY l.zeitstempel DESC
+         LIMIT 200"
+    );
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
 function handleNachschub(string $method): void

@@ -34,14 +34,26 @@ export const api = {
       }),
     verify: () =>
       request<{ valid: boolean }>('/api/auth/verify'),
+    changePassword: (oldPassword: string, newPassword: string) =>
+      request<{ success: boolean }>('/api/auth/password', {
+        method: 'PUT',
+        body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+      }),
   },
 
   produkte: {
     list: () => request<import('../types').Produkt[]>('/api/produkte'),
-    create: (data: { name: string; kategorie: string; meldebestand_kaesten: number }) =>
+    create: (data: { name: string; meldebestand_kaesten: number }) =>
       request<{ success: boolean; id: number }>('/api/produkte', {
         method: 'POST',
         body: JSON.stringify(data),
+      }),
+    delete: (id: number) =>
+      request<{ success: boolean }>(`/api/produkte/${id}`, { method: 'DELETE' }),
+    updateMeldebestand: (id: number, meldebestand_kaesten: number) =>
+      request<{ success: boolean }>(`/api/produkte/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ meldebestand_kaesten }),
       }),
   },
 
@@ -60,6 +72,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+  },
+
+  logbuch: {
+    list: () => request<import('../types').LogbuchEintrag[]>('/api/logbuch'),
   },
 
   nachschub: {

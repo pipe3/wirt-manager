@@ -1,7 +1,6 @@
 export interface Produkt {
   id: number;
   name: string;
-  kategorie: string;
   meldebestand_kaesten: number;
 }
 
@@ -19,6 +18,15 @@ export interface NachschubAnfrage {
   name: string;
   zeitstempel: string;
   status: string;
+}
+
+export interface LogbuchEintrag {
+  id: number;
+  zeitstempel: string;
+  differenz: number;
+  grund: string;
+  benutzerrolle: string;
+  produkt_name: string | null;
 }
 
 export interface SyncItem {
