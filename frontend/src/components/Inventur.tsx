@@ -1,10 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Minus, Calendar, Check } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Calendar, Check, Trash2 } from 'lucide-react';
 import type { Produkt, Charge } from '../types';
 import { api } from '../api/client';
 import { addToQueue } from '../utils/sync';
 import styles from './Inventur.module.css';
+
+type MhdStatus = 'green' | 'yellow' | 'red' | 'grey';
+
+const STATUS_COLORS: Record<MhdStatus, string> = {
+  green: 'var(--success)',
+  yellow: 'var(--warning)',
+  red: 'var(--danger)',
+  grey: 'var(--border)',
+};
+
+function getChargeStatus(c: import('../types').Charge): MhdStatus {
+  if (c.kaesten_anzahl === 0) return 'grey';
+  const now = new Date();
+  const diffMonths = (c.mhd_jahr - now.getFullYear()) * 12 + (c.mhd_monat - (now.getMonth() + 1));
+  if (diffMonths <= 0) return 'red';
+  if (diffMonths <= 2) return 'yellow';
+  return 'green';
+}
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [CURRENT_YEAR, CURRENT_YEAR + 1, CURRENT_YEAR + 2, CURRENT_YEAR + 3];
@@ -59,6 +77,16 @@ export default function Inventur() {
     }
   };
 
+  const handleDeleteCharge = async (chargeId: number) => {
+    setBusy(chargeId);
+    try {
+      await api.chargen.delete(chargeId);
+      await fetchData();
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const handleAddBatch = async () => {
     try {
       await api.chargen.create({ produkt_id: produktId, kaesten_anzahl: newCount, mhd_monat: selMonth, mhd_jahr: selYear });
@@ -84,33 +112,51 @@ export default function Inventur() {
       </div>
 
       <div className={styles.chargeList}>
-        {chargen.map((c) => (
-          <div key={c.id} className={`card ${styles.chargeCard}`}>
-            <div>
-              <div className={styles.chargeDate}>
-                <Calendar size={14} />
-                MHD: {String(c.mhd_monat).padStart(2, '0')}/{c.mhd_jahr}
+        {[...chargen]
+          .sort((a, b) => a.mhd_jahr !== b.mhd_jahr ? a.mhd_jahr - b.mhd_jahr : a.mhd_monat - b.mhd_monat)
+          .map((c) => {
+            const status = getChargeStatus(c);
+            return (
+              <div key={c.id} className={`card ${styles.chargeCard}`}>
+                <div className={styles.statusBar} style={{ background: STATUS_COLORS[status] }} />
+                <div>
+                  <div className={styles.chargeDate}>
+                    <Calendar size={14} />
+                    MHD: {String(c.mhd_monat).padStart(2, '0')}/{c.mhd_jahr}
+                  </div>
+                  <div className={styles.chargeCount}>{c.kaesten_anzahl} Kästen</div>
+                </div>
+                <div className={styles.chargeActions}>
+                  {c.kaesten_anzahl === 0 ? (
+                    <button
+                      className={`${styles.roundButton} ${styles.deleteButton}`}
+                      onClick={() => handleDeleteCharge(c.id)}
+                      disabled={busy === c.id}
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className={`${styles.roundButton} ${styles.decrementButton}`}
+                        onClick={() => handleUpdate(c.id, -1, 'Entnahme')}
+                        disabled={busy === c.id || c.kaesten_anzahl <= 0}
+                      >
+                        <Minus size={20} />
+                      </button>
+                      <button
+                        className={`${styles.roundButton} ${styles.incrementButton}`}
+                        onClick={() => handleUpdate(c.id, 1, 'Korrektur')}
+                        disabled={busy === c.id}
+                      >
+                        <Plus size={20} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className={styles.chargeCount}>{c.kaesten_anzahl} Kästen</div>
-            </div>
-            <div className={styles.chargeActions}>
-              <button
-                className={`${styles.roundButton} ${styles.decrementButton}`}
-                onClick={() => handleUpdate(c.id, -1, 'Entnahme')}
-                disabled={busy === c.id || c.kaesten_anzahl <= 0}
-              >
-                <Minus size={20} />
-              </button>
-              <button
-                className={`${styles.roundButton} ${styles.incrementButton}`}
-                onClick={() => handleUpdate(c.id, 1, 'Korrektur')}
-                disabled={busy === c.id}
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-          </div>
-        ))}
+            );
+          })}
       </div>
 
       {!showAddBatch ? (

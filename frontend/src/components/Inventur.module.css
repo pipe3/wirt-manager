@@ -33,6 +33,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  overflow: hidden;
+  padding-left: 0 !important;
+}
+
+.statusBar {
+  width: 10px;
+  align-self: stretch;
+  flex-shrink: 0;
+  border-radius: 0;
 }
 
 .chargeDate {
@@ -76,6 +85,11 @@
 
 .incrementButton {
   background: var(--success);
+}
+
+.deleteButton {
+  background: var(--border);
+  color: var(--text-dim);
 }
 
 .addBatchButton {

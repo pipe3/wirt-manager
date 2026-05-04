@@ -43,10 +43,10 @@ if ($parent === 'auth') {
 // Alle anderen Endpoints: Token prüfen
 requireAuth();
 
-// Ressource mit ID (z.B. /api/produkte/5)
-if (is_numeric($resource) && $parent === 'produkte') {
-    handleProduktById($method, (int)$resource);
-    exit;
+// Ressource mit ID (z.B. /api/produkte/5, /api/chargen/3)
+if (is_numeric($resource)) {
+    if ($parent === 'produkte') { handleProduktById($method, (int)$resource); exit; }
+    if ($parent === 'chargen')  { handleChargeById($method, (int)$resource);  exit; }
 }
 
 switch ($resource) {
@@ -164,6 +164,30 @@ function handleProduktById(string $method, int $id): void
     } else {
         http_response_code(405);
         echo json_encode(['error' => 'Method not allowed']);
+    }
+}
+
+function handleChargeById(string $method, int $id): void
+{
+    global $pdo;
+    if ($method !== 'DELETE') { http_response_code(405); echo json_encode(['error' => 'Method not allowed']); return; }
+
+    $row = $pdo->prepare('SELECT produkt_id, kaesten_anzahl FROM chargen WHERE id = ?');
+    $row->execute([$id]);
+    $charge = $row->fetch();
+    if (!$charge) { http_response_code(404); echo json_encode(['error' => 'Charge nicht gefunden']); return; }
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM chargen WHERE id = ?')->execute([$id]);
+        $pdo->prepare("INSERT INTO logbuch (produkt_id, differenz, grund, benutzerrolle) VALUES (?, ?, 'Charge entfernt', 'Admin')")
+            ->execute([$charge['produkt_id'], -$charge['kaesten_anzahl']]);
+        $pdo->commit();
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        http_response_code(500);
+        echo json_encode(['error' => 'Datenbankfehler']);
     }
 }
 

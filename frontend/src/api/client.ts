@@ -64,6 +64,8 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    delete: (id: number) =>
+      request<{ success: boolean }>(`/api/chargen/${id}`, { method: 'DELETE' }),
   },
 
   inventur: {
