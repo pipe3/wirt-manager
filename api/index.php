@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 header('Content-Type: application/json; charset=UTF-8');
 
 // CORS: In Produktion erlaubte Origin konfigurieren
@@ -79,7 +77,10 @@ function requireAuth(): void
     if (str_starts_with($authHeader, 'Bearer ')) {
         $token = substr($authHeader, 7);
     }
-    if (empty($token) || !isset($_SESSION['token']) || !hash_equals($_SESSION['token'], $token)) {
+    $stmt = $pdo->prepare("SELECT value FROM einstellungen WHERE key = 'auth_token'");
+    $stmt->execute();
+    $row = $stmt->fetch();
+    if (empty($token) || !$row || !hash_equals($row['value'], $token)) {
         http_response_code(401);
         echo json_encode(['error' => 'Nicht autorisiert']);
         exit;
@@ -102,7 +103,7 @@ function handleAuth(string $method): void
 
     if ($row && password_verify($password, $row['value'])) {
         $token = bin2hex(random_bytes(32));
-        $_SESSION['token'] = $token;
+        $pdo->prepare("INSERT OR REPLACE INTO einstellungen (key, value) VALUES ('auth_token', ?)")->execute([$token]);
         echo json_encode(['success' => true, 'token' => $token]);
     } else {
         http_response_code(401);
