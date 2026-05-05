@@ -15,7 +15,6 @@ Unter **GitHub → Repository → Settings → Secrets and variables → Actions
 | `SSH_USER` | SSH-Benutzername | `myuser` |
 | `SSH_PORT` | SSH-Port | `22` |
 | `SSH_PRIVATE_KEY` | Privater SSH-Key (ganzer Inhalt der Keyfile) | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
-| `DEPLOY_PATH` | Absoluter Zielpfad auf dem Server | `/html` |
 | `ALLOWED_ORIGIN` | Domain der App (für CORS) | `https://example.com` |
 
 ---

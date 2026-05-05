@@ -40,14 +40,14 @@ jobs:
             --exclude='api/' \
             frontend/dist/ \
             -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:
 
       - name: Webroot .htaccess deployen
         run: |
           rsync -az \
             deployment/.htaccess \
             -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/.htaccess
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:
 
       - name: API deployen
         run: |
@@ -55,11 +55,11 @@ jobs:
             --exclude='data/' \
             api/ \
             -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/api/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:api/
 
       - name: api/.htaccess deployen
         run: |
           rsync -az \
             /tmp/api-htaccess \
             -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/api/.htaccess
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:api/.htaccess
