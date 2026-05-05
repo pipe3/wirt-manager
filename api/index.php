@@ -72,6 +72,7 @@ switch ($resource) {
 
 function requireAuth(): void
 {
+    global $pdo;
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     $token = '';
     if (str_starts_with($authHeader, 'Bearer ')) {
