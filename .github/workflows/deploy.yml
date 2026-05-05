@@ -37,6 +37,7 @@ jobs:
         run: |
           {
             echo "RewriteEngine On"
+            echo "RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]"
             echo "RewriteCond %{REQUEST_FILENAME} !-f"
             echo "RewriteRule ^ index.php [L]"
             echo "SetEnv ALLOWED_ORIGIN ${{ secrets.ALLOWED_ORIGIN }}"
