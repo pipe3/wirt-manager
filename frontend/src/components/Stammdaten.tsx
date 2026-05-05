@@ -7,7 +7,6 @@ import styles from './Stammdaten.module.css';
 export default function Stammdaten() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [kategorie, setKategorie] = useState('');
   const [meldebestand, setMeldebestand] = useState(5);
   const [status, setStatus] = useState('');
   const [isError, setIsError] = useState(false);
@@ -15,11 +14,10 @@ export default function Stammdaten() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await api.produkte.create({ name, kategorie, meldebestand_kaesten: meldebestand });
+      await api.produkte.create({ name, meldebestand_kaesten: meldebestand });
       setStatus('Getränk erfolgreich angelegt!');
       setIsError(false);
       setName('');
-      setKategorie('');
       setTimeout(() => navigate('/'), 1500);
     } catch {
       setStatus('Fehler beim Speichern');
@@ -43,17 +41,6 @@ export default function Stammdaten() {
               placeholder="z.B. Pils, Cola, Spezi..."
               value={name}
               onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Kategorie / Typ</label>
-            <input
-              type="text"
-              placeholder="z.B. Bier, Softdrink..."
-              value={kategorie}
-              onChange={(e) => setKategorie(e.target.value)}
               required
             />
           </div>

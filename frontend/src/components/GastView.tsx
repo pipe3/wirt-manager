@@ -49,7 +49,7 @@ export default function GastView() {
             <div key={p.id} className={`card ${styles.productCard}`}>
               <div className={styles.productInfo}>
                 <h3 className={styles.productName}>{p.name}</h3>
-                <p className={styles.productCategory}>{p.kategorie}</p>
+
               </div>
               <div className={styles.stockInfo}>
                 <span className={styles.stockNumber}>{bestand}</span>
